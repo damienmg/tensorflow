@@ -39,8 +39,8 @@ echo "startup --batch" >>/root/.bazelrc
 #   https://github.com/bazelbuild/bazel/issues/418
 echo "build --spawn_strategy=standalone --genrule_strategy=standalone" \
     >>/root/.bazelrc
-# Force bazel output to use colors (good for jenkins).
-echo "common --color=yes" >>/root/.bazelrc
+# Force bazel output to use colors (good for jenkins) and print useful errors.
+echo "common --color=yes --verbose_failures" >>/root/.bazelrc
 # Configure tests - increase timeout, print errors and timeout warnings
 echo "test" \
     " --test_timeout=3600" \
