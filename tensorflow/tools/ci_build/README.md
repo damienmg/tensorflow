@@ -12,9 +12,9 @@ It is running at [ci.tensorflow.org](http://ci.tensorflow.org).
 All the jobs are run within [docker](http://www.docker.com/) containers.
 
 Builds can be triggered by push to master, push a change set or manually.
-The build started in jenkins will first pull the git tree. Then jenkins builds
-a docker container (using one of those Dockerfile.* files in this directory).
-The build itself is run within the container itself.
+The build started in jenkins will first pull the git tree (with all submodules).
+Then jenkins builds a docker container (using one of those Dockerfile.*
+files in this directory). The build itself is run within the container itself.
 
 Source tree lives in jenkins job workspace. Docker container for jenkins
 are transient - deleted after the build. Containers build very fast thanks
@@ -24,13 +24,23 @@ to docker caching. Individual builds are fast thanks to bazel caching.
 
 ## Implementation Details
 
-* The unusual `bazel-ci_build-cache` directory is mapped to docker
-  container performing the build using docker's --volume parameter.
-  This way we cache bazel output between builds.
+* `bazel-ci_build-cache` directory is mounted to docker container as a home
+  directory of user performing the build. It is mounted using docker's --volume
+  parameter. This way we cache bazel output between builds.
 
-* The `builds` directory within this folder contains shell scripts to run within
-  the container. They essentially contains workarounds for current limitations
-  of bazel.
+* [builds](builds) directory within this folder contains shell scripts to run
+  inside the container. They essentially contains workarounds for current
+  limitations of bazel.
+
+  - [builds/configured](builds/configured) is a wrapper script automating
+      [./configure](../../../configure)
+
+  - [builds/with_user](builds/with_user) is a wrapper script creating inside
+    container the same user and group as the user (outside the container)
+    running the [ci_build.sh](ci_build.sh).
+
+  - The other scripts in [builds](builds) are bazel workarounds and multi-line
+    builds.
 
 
 
@@ -56,6 +66,11 @@ cd tensorflow
    ```bash
 tensorflow/tools/ci_build/ci_build.sh CPU bazel test //tensorflow/...
 ```
+
+Note: You can run it without docker using
+`tensorflow/tools/ci_build/builds/configured CPU bazel test //tensorflow/...`
+and if you run [./configure](../../../configure) yourself you are left with
+only `bazel test //tensorflow/...` to run.
 
 
 
