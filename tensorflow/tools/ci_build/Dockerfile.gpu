@@ -10,6 +10,9 @@ RUN /install/install_openjdk8_from_ppa.sh
 COPY install/install_bazel.sh /install/install_bazel.sh
 RUN /install/install_bazel.sh
 
+# Set up BAZELRC environment variable.
+ENV BAZELRC /root/.bazelrc
+
 # Set up CUDA variables
 ENV CUDA_PATH /usr/local/cuda
 ENV LD_LIBRARY_PATH /usr/local/cuda/lib64
